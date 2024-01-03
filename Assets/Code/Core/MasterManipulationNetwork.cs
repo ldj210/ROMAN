@@ -5,8 +5,9 @@
  * Purpose: The Main Code for the Gating Network (Manipulation Network)       *
  ******************************************************************************/
 
-using MLAgents;
-using MLAgents.Sensors;
+using Unity.MLAgents;
+using Unity.MLAgents.Sensors;
+using Unity.MLAgents.Actuators;
 using UnityEngine;
 
 public class MasterManipulationNetwork : Agent
@@ -170,6 +171,7 @@ public class MasterManipulationNetwork : Agent
     public float [] vectorActionReadOnly = new float[7];
 
     // Action Space
+    /*
     public override void OnActionReceived(float[] vectorAction)
     {
         // Clamp Actions 0->1
@@ -213,7 +215,54 @@ public class MasterManipulationNetwork : Agent
 
         // Display the Weights
         vectorActionReadOnly = vectorAction;
+    } */
+
+    public override void OnActionReceived(ActionBuffers actions)//(float[] vectorAction)
+    {
+        // Clamp Actions 0->1
+        float[] continuous = new float[6];
+        continuous[0] = Mathf.Clamp(actions.ContinuousActions[0], 0, 1);
+        continuous[1] = Mathf.Clamp(actions.ContinuousActions[1], 0, 1);
+        continuous[2] = Mathf.Clamp(actions.ContinuousActions[2], 0, 1);
+        continuous[3] = Mathf.Clamp(actions.ContinuousActions[3], 0, 1);
+        continuous[4] = Mathf.Clamp(actions.ContinuousActions[4], 0, 1);
+        continuous[5] = Mathf.Clamp(actions.ContinuousActions[5], 0, 1);
+        continuous[6] = Mathf.Clamp(actions.ContinuousActions[6], 0, 1);
+        for (int i = 0; i < continuous.Length; i++)
+            continuous[i] *= 10;
+
+        // Use Specified Activation Function
+        continuous = ActivationFunction.softMax(continuous);
+
+        // Apply Corresponding Weights to Experts
+        expertPull.agentWeight = continuous[0];
+        expertPickDrop.agentWeight = continuous[1];
+        expertRotateOpen.agentWeight = continuous[2];
+        expertPickPlace.agentWeight = continuous[3];
+        expertPickInsert.agentWeight = continuous[4];
+        expertPush.agentWeight = continuous[5];
+        expertButton.agentWeight = continuous[6];
+
+        // Apply Agent-Specific Rewards
+        if (StepCount >= (MaxStep / (MaxStep <= 80000 ? 100 : stepSafetySync))) 
+            AgentSpecificReward(continuous);
+
+        // For Information and Debugging
+        totalReward = GetCumulativeReward();
+        PrintEpisodeInfo(false);
+
+        // Terminate Episode if Needed
+        if ((StepCount >= (MaxStep / 10)) && AtLeastOneExpertHasFinished())
+            TerminateAll();
+
+        // Visualise the Weight Assignments if Needed
+        if (expertVis && expertVis.gameObject.activeInHierarchy)
+            VisualiseExpertWeights(continuous);
+
+        // Display the Weights
+        vectorActionReadOnly = continuous;
     }
+
 
     // Agent Specific Rewards
     public float totalReward = 0;
@@ -265,7 +314,7 @@ public class MasterManipulationNetwork : Agent
             rackToConveyorDistanceNorm <= 0.15f &&
             expertButton.buttonFunction.buttonActivated &&
             distanceAgentToInitPos <= 0.3f
-            && (StepCount >= (maxStep / 100)))
+            && (StepCount >= (MaxStep / 100)))
         {
             SetReward(1000f);
             PrintEpisodeInfo(true);
@@ -289,7 +338,8 @@ public class MasterManipulationNetwork : Agent
     // Heuristic Actions (For Demonstration / Imitation Purposes)
     public float[] heuristicActions;
     private bool currentlyHeuristic = false;
-    public override float[] Heuristic()
+    //public override float[] Heuristic()
+    public override void Heuristic(in ActionBuffers actionsOut)
     {
         // Numpads "[ExpertID]"
         heuristicActions = new float[7];
@@ -307,7 +357,7 @@ public class MasterManipulationNetwork : Agent
         else
             episodeHasResetForButtonPress = false;
         currentlyHeuristic = true;
-        return heuristicActions;
+        //return heuristicActions;
     }
 
     // Functions to Reset Internal Variables and Scene Parameters

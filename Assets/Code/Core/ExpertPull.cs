@@ -8,8 +8,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using MLAgents;
-using MLAgents.Sensors;
+using Unity.MLAgents;
+using Unity.MLAgents.Sensors;
+using Unity.MLAgents.Actuators;
 using System.IO;
 
 public class ExpertPull : Agent
@@ -109,20 +110,21 @@ public class ExpertPull : Agent
     private float maxAllowableDivergence = 1.5f;
 
     // Action Space
-    public override void OnActionReceived(float[] vectorAction)
+    //public override void OnActionReceived(float[] vectorAction)
+    public override void OnActionReceived(ActionBuffers actions)
     {
         // Robot Position Control via Applied Force
         Vector3 controlSignalPos = Vector3.zero;
-        controlSignalPos.y = vectorAction[0] * agentWeight;
-        controlSignalPos.z = vectorAction[1] * agentWeight;
-        controlSignalPos.x = vectorAction[2] * agentWeight;
+        controlSignalPos.y = actions.ContinuousActions[0] * agentWeight;
+        controlSignalPos.z = actions.ContinuousActions[1] * agentWeight;
+        controlSignalPos.x = actions.ContinuousActions[2] * agentWeight;
         Vector3 totalForcePos = controlSignalPos * speed * agentRB.mass;
         agentRB.AddForce(totalForcePos);
 
         // Open or Close the Gripper
-        if (vectorAction[3] * agentWeight < -0.9f)
+        if (actions.ContinuousActions[3] * agentWeight < -0.9f)
             gripperState.openGripper = false;
-        if (vectorAction[3] * agentWeight > 0.9f)
+        if (actions.ContinuousActions[3] * agentWeight > 0.9f)
             gripperState.openGripper = true;
 
         // Apply Agent-Specific Rewards
@@ -169,7 +171,7 @@ public class ExpertPull : Agent
         distanceToBase = distanceAgentToInitPos;
 
         // Primary Goal is Achieved and Agent is Wihin Initial Position
-        if (distanceAgentToInitPos < 0.1f && drawerOpenDistanceNorm >= 0.95f && (StepCount >= (maxStep / 10)) && !agentControlled)
+        if (distanceAgentToInitPos < 0.1f && drawerOpenDistanceNorm >= 0.95f && (StepCount >= (MaxStep / 10)) && !agentControlled)
         {
             SetReward(1000f);
             PrintEpisodeInfo(true);
@@ -191,13 +193,23 @@ public class ExpertPull : Agent
     // Heuristic Actions (For Demonstration / Imitation Purposes)
     public float[] heuristicActions;
     private bool currentlyHeuristic = false;
-    public override float[] Heuristic()
+    //public override float[] Heuristic()
+    public override void Heuristic(in ActionBuffers actionsOut)
     {
+        /*
         heuristicActions = new float[4];
         heuristicActions[0] = Input.GetAxis("Vertical");
         heuristicActions[1] = Input.GetAxis("Horizontal");
         heuristicActions[2] = Input.GetAxis("Up_Down");
         heuristicActions[3] = Input.GetAxis("OpenCloseGripper");
+        */
+
+        var continuousActionsOut = actionsOut.ContinuousActions;
+        continuousActionsOut[0] = Input.GetAxis("Vertical");
+        continuousActionsOut[1] = Input.GetAxis("Horizontal");
+        continuousActionsOut[2] = Input.GetAxis("Up_Down");
+        continuousActionsOut[3] = Input.GetAxis("OpenCloseGripper");
+
 
         if (ButtonIsBeingPressed() && episodeHasResetForButtonPress)
             for (int i = 0; i < heuristicActions.Length; i++)
@@ -205,7 +217,7 @@ public class ExpertPull : Agent
         else
             episodeHasResetForButtonPress = false;
         currentlyHeuristic = true;
-        return heuristicActions;
+        //return heuristicActions;
     }
 
     // Functions to Reset Internal Variables and Scene Parameters
