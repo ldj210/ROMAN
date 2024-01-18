@@ -23,6 +23,13 @@ public class ExpertButton : Agent
     public int stepSafetySync = 320;
     public float speed = 1f;
 
+    // * Test ===== 3
+    [Header("Agent Success")]
+    public int totalEpisodes = 0; // 总回合数
+    public int successfulEpisodes = 0; // 成功回合数
+    public int testEpisodeLimit = 1000; // 测试回合限制
+    public bool Inference_Flag = true; // 测试回合限制
+
     [Header("Object Assignments")]
     public SceneManagement sceneManager;
     public Transform agentTR;
@@ -87,6 +94,32 @@ public class ExpertButton : Agent
             RandomizeEpisodeVariables();
         }
         episode++;
+    }
+
+    // * Test method
+    void EndEpisode()
+    {
+        totalEpisodes++; // 增加回合计数
+        if (Inference_Flag)     // Inference should be give out success rate.
+            CheckTestCompletion(); // 检查测试是否完成
+        base.EndEpisode(); // 调用基类的 EndEpisode 方法
+    }
+
+    // * Test method
+    void CheckTestCompletion()
+    {
+        if (totalEpisodes >= testEpisodeLimit)
+        {
+            float successRate = (float)successfulEpisodes / totalEpisodes;
+            Debug.Log($"Test Completed: {totalEpisodes} episodes, {successfulEpisodes} successes, Success Rate: {successRate * 100}%");
+            
+            // 在编辑器中停止
+            #if UNITY_EDITOR
+                        UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                        Application.Quit();
+            #endif
+        }
     }
 
     // Objects of Interest (OIs)
@@ -176,6 +209,8 @@ public class ExpertButton : Agent
         {
             SetReward(1000f);
             PrintEpisodeInfo(true);
+            // * Test ===== 1
+            successfulEpisodes++;
             EndEpisode();
         }
     }
