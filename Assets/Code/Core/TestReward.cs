@@ -42,6 +42,10 @@ public class TestReward : Agent
     // pick and insert
     public Transform vialTargetTR;
     public ObjectInCollisionWith vialInCollisionWith;
+    // push
+    public Transform endLocationTargetTR;
+    // button
+    public Transform buttonTargetTR;
 
 
     [Header("Low Pass Filter Settings")]
@@ -56,6 +60,10 @@ public class TestReward : Agent
     public int episode = -1;
     [System.NonSerialized]
     EnvironmentNoise environmentNoise;
+
+    // button
+    [System.NonSerialized]
+    public ButtonFunction buttonFunction;
 
     private float actualTime;
     private Rigidbody agentRB;
@@ -80,6 +88,9 @@ public class TestReward : Agent
         gripperState = agentTR.GetComponent<GripperState>();
         forceFingerA = gripperState.RBFingerA.transform.GetComponent<ForceReading>();
         forceFingerB = gripperState.RBFingerB.transform.GetComponent<ForceReading>();
+
+        //button
+        buttonFunction = buttonTargetTR.GetComponent<ButtonFunction>();
 
         lowPassFilter = new LowPassFilter[requiredFilteredValues];
         for (int i = 0; i < lowPassFilter.Length; i++)
@@ -112,6 +123,10 @@ public class TestReward : Agent
     private Vector3 rackTargetPosWithNoise, rackLocationTargetPosWithNoise;
     // pick and insert
     private Vector3 vialTargetPosWithNoise;
+    // push
+    private Vector3 rackEndLocationTargetPosWithNoise;
+    // button
+    private Vector3 buttonTargetPosWithNoise;
 
     // State Space
     public override void CollectObservations(VectorSensor sensor)
@@ -142,7 +157,7 @@ public class TestReward : Agent
         doorHandleTargetPosWithNoise = LowPassFilteredPosition(doorHandleTargetPosWithNoise, new int[] { 9, 10, 11 });
         sensor.AddObservation(doorHandleTargetPosWithNoise);
 
-        // Input: Noisy Environment Data (6) for pickplace
+        // Input: Noisy Environment Data (6) for pickplace (push)
         rackTargetPosWithNoise = GaussianDistribution.PositionWGaussianNoise(rackTargetTR.localPosition, environmentNoise.posNoiseMeters);
         rackTargetPosWithNoise = LowPassFilteredPosition(rackTargetPosWithNoise, new int[] { 12, 13, 14 });
         sensor.AddObservation(rackTargetPosWithNoise);
@@ -154,7 +169,18 @@ public class TestReward : Agent
         vialTargetPosWithNoise = GaussianDistribution.PositionWGaussianNoise(vialTargetTR.localPosition, environmentNoise.posNoiseMeters);
         vialTargetPosWithNoise = LowPassFilteredPosition(vialTargetPosWithNoise, new int[] { 15, 16, 17 });
         sensor.AddObservation(vialTargetPosWithNoise);
-        
+
+        // Input: Noisy Environment Data (6) for push
+        rackEndLocationTargetPosWithNoise = GaussianDistribution.PositionWGaussianNoise(endLocationTargetTR.localPosition, environmentNoise.posNoiseMeters);
+        rackEndLocationTargetPosWithNoise = LowPassFilteredPosition(rackEndLocationTargetPosWithNoise, new int[] { 21, 22, 23 });
+        sensor.AddObservation(rackEndLocationTargetPosWithNoise);
+
+        // Input: Noisy Environment Data (3) for buttion
+        buttonTargetPosWithNoise = GaussianDistribution.PositionWGaussianNoise(buttonTargetTR.localPosition, environmentNoise.posNoiseMeters);
+        buttonTargetPosWithNoise = LowPassFilteredPosition(buttonTargetPosWithNoise, new int[] { 18, 19, 20 });
+        sensor.AddObservation(buttonTargetPosWithNoise);
+        sensor.AddObservation(buttonFunction.buttonActivated);
+
         // common for each Expert
         sensor.AddObservation(distanceAgentToInitPosNorm);
     }
@@ -274,12 +300,81 @@ public class TestReward : Agent
                 else if (rackInContactWithRack == false)
                 {
                     currentTask = TaskState.PickPlace;
-                    Debug.Log("Task-PickInsert:" + currentTask);
+                    Debug.Log("Task-PickPlace:" + currentTask);
                 }
                 else if (vialTargetInCollsionWithRack)
                 {
                     currentTask = TaskState.Push;
                     Debug.Log("Task-Push:" + currentTask);
+                }
+                // Criteria to switch to dropping, e.g., object is picked
+                break;
+
+            case TaskState.Push:
+                if (drawerOpenDistanceNorm < 0.90f) {
+                    currentTask = TaskState.Pull;
+                    Debug.Log("Task-Pull:" + currentTask);
+                }
+                else if (boxTopInCollisionWithUnpackLocation == false)
+                {
+                    currentTask = TaskState.PickDrop;
+                    Debug.Log("Task-PickDrop:" + currentTask);
+                }
+                else if (doorHingeOpenAngleNorm < 0.85f) {
+                    currentTask = TaskState.DoorOpen;
+                    Debug.Log("Task-DoorOpen:" + currentTask);
+                }
+                // else if (rackInContactWithRack == false)
+                // {
+                //     currentTask = TaskState.PickPlace;
+                //     Debug.Log("Task-PickPlace:" + currentTask);
+                // }
+                else if (vialTargetInCollsionWithRack == false)
+                {
+                    currentTask = TaskState.PickInsert;
+                    Debug.Log("Task-PickInsert:" + currentTask);
+                }
+                else if (distanceRackToEndLocationNorm <= 0.05f)
+                {
+                    currentTask = TaskState.Button;
+                    Debug.Log("Task-Button:" + currentTask);
+                }
+                // Criteria to switch to dropping, e.g., object is picked
+                break;
+
+            case TaskState.Button:
+                if (drawerOpenDistanceNorm < 0.90f) {
+                    currentTask = TaskState.Pull;
+                    Debug.Log("Task-Pull:" + currentTask);
+                }
+                else if (boxTopInCollisionWithUnpackLocation == false)
+                {
+                    currentTask = TaskState.PickDrop;
+                    Debug.Log("Task-PickDrop:" + currentTask);
+                }
+                else if (doorHingeOpenAngleNorm < 0.85f) {
+                    currentTask = TaskState.DoorOpen;
+                    Debug.Log("Task-DoorOpen:" + currentTask);
+                }
+                // else if (rackInContactWithRack == false)
+                // {
+                //     currentTask = TaskState.PickPlace;
+                //     Debug.Log("Task-PickPlace:" + currentTask);
+                // }
+                else if (vialTargetInCollsionWithRack == false)
+                {
+                    currentTask = TaskState.PickInsert;
+                    Debug.Log("Task-PickInsert:" + currentTask);
+                }
+                else if (distanceRackToEndLocationNorm > 0.05f)
+                {
+                    currentTask = TaskState.Push;
+                    Debug.Log("Task-Push:" + currentTask);
+                }
+                else if (buttonFunction.buttonActivated)
+                {
+                    currentTask = TaskState.Pull;
+                    Debug.Log("Task-Pull:" + currentTask);
                 }
                 // Criteria to switch to dropping, e.g., object is picked
                 break;
@@ -312,6 +407,13 @@ public class TestReward : Agent
     public bool vialHeightPenalizedThisEpisode = false;
     private const float maxVialRackHeight = 0.4f;
     private const float vialAgentDisplacement = 0.275f;
+    // push
+    public float distanceRackToEndLocation;
+    public float distanceRackToEndLocationNorm;
+    public float maxDistanceRackToEndLocation = -1f;
+    // button
+    public float distanceAgentToButtonNorm;
+    public float maxDistanceAgentToButton = -1f;
     
     [System.NonSerialized]
     public float distanceToBase = 0.0f;
@@ -344,12 +446,20 @@ public class TestReward : Agent
         vialTargetInCollsionWithRack = vialInCollisionWith.inContactWithTarget &&
             vialInCollisionWith.gameObjectInCollision.name == "Bottom Goal" &&
             vialInCollisionWith.gameObjectInCollision.transform.parent.name == "[Target Dynamic] Rack";
+        
+        // push
+        distanceRackToEndLocation = Mathf.Abs(rackTargetPosWithNoise.z - rackEndLocationTargetPosWithNoise.z);
+        if (maxDistanceRackToEndLocation < 0)
+            maxDistanceRackToEndLocation = distanceRackToEndLocation;
+        distanceRackToEndLocationNorm = Mathf.Clamp(distanceRackToEndLocation / maxDistanceRackToEndLocation, 0, 1);
 
         Debug.Log("drawerOpenDistanceNorm>=0.95?:" + drawerOpenDistanceNorm);
         Debug.Log("boxTopInCollisionWithUnpackLocation == true?:" + boxTopInCollisionWithUnpackLocation);
         Debug.Log("doorHingeOpenAngleNorm >= 0.85f?:" + doorHingeOpenAngleNorm);
         Debug.Log("rackInContactWithRack == true?:" + rackInContactWithRack);
         Debug.Log("vialTargetInCollsionWithRack == true?:" + vialTargetInCollsionWithRack);
+        Debug.Log("distanceRackToEndLocationNorm <= 0.05f?:" + distanceRackToEndLocationNorm);
+        Debug.Log("buttonFunction.buttonActivated == true?:" + buttonFunction.buttonActivated);
         Debug.Log("real-time-currentTask:" + currentTask);
         UpdateTaskState();
 
@@ -373,11 +483,19 @@ public class TestReward : Agent
         {
             AddReward(CalculatePickInsertingReward());
         }
+        else if (currentTask == TaskState.Push)
+        {
+            AddReward(CalculatePushingReward());
+        }
+        else if (currentTask == TaskState.Button)
+        {
+            AddReward(CalculateButtonReward());
+        }
 
         // The next line can be for all expert reward 1 for 7
         float distanceAgentToInitPos = Vector3.Distance(agentTR.localPosition, agentDefaultInitPos);
         // Primary Goal is Achieved and Agent is Wihin Initial Position
-        if (distanceAgentToInitPos < 0.1f && drawerOpenDistanceNorm >= 0.95f && boxTopInCollisionWithUnpackLocation && doorHingeOpenAngleNorm >= 0.85f && rackInContactWithRack && vialTargetInCollsionWithRack && (StepCount >= (MaxStep / 10)) && !agentControlled)
+        if (distanceAgentToInitPos < 0.1f && drawerOpenDistanceNorm >= 0.95f && boxTopInCollisionWithUnpackLocation && doorHingeOpenAngleNorm >= 0.85f && rackInContactWithRack && vialTargetInCollsionWithRack && distanceRackToEndLocationNorm <= 0.05f && buttonFunction.buttonActivated && (StepCount >= (MaxStep / 10)) && !agentControlled)
         {
             SetReward(1000f);
             PrintEpisodeInfo(true);
@@ -590,6 +708,65 @@ public class TestReward : Agent
         return PickAndPlacingReward;
     }
 
+    float CalculatePushingReward()
+    {
+        // R1: Distance to Rack
+        float distanceAgentToRack = Vector3.Distance(agentTR.localPosition, rackTargetPosWithNoise);
+        if (maxDistanceAgentToRack < 0)
+            maxDistanceAgentToRack = distanceAgentToRack;
+        distanceAgentToRackNorm = Mathf.Clamp(distanceAgentToRack / maxDistanceAgentToRack, 0, 1);
+        float R1 = (1 - distanceAgentToRackNorm) * 0.0005f * speed * (distanceRackToEndLocationNorm);
+
+        // R2: Distance Rack to Conveyor Belt Position
+        distanceRackToEndLocation = Mathf.Abs(rackTargetPosWithNoise.z - rackEndLocationTargetPosWithNoise.z);
+        if (maxDistanceRackToEndLocation < 0)
+            maxDistanceRackToEndLocation = distanceRackToEndLocation;
+        distanceRackToEndLocationNorm = Mathf.Clamp(distanceRackToEndLocation / maxDistanceRackToEndLocation, 0, 1);
+        float R2 = (1 - distanceRackToEndLocationNorm) * 0.005f * speed;
+
+        // R3: Distance to Initial Position
+        float distanceAgentToInitPos = Vector3.Distance(agentTR.localPosition, agentDefaultInitPos);
+        if (maxDistanceAgentToInitPos < 0)
+            maxDistanceAgentToInitPos = distanceAgentToInitPos;
+        distanceAgentToInitPosNorm = Mathf.Clamp(distanceAgentToInitPos / maxDistanceAgentToInitPos, 0, 1);
+        float R3 = (1 - distanceAgentToInitPosNorm) * 0.0005f * speed * (1f - distanceRackToEndLocationNorm);
+        distanceToBase = distanceAgentToInitPos;
+
+        // Implement the logic from your first AgentSpecificReward method
+        float PushingReward = R1 + R2 + R3;
+
+        return PushingReward;
+    }
+
+    float CalculateButtonReward()
+    {
+        // R1: Distance to Button
+        float distanceAgentToButton = Vector3.Distance(agentTR.localPosition, buttonTargetPosWithNoise);
+        if (maxDistanceAgentToButton < 0)
+            maxDistanceAgentToButton = distanceAgentToButton;
+        distanceAgentToButtonNorm = Mathf.Clamp(distanceAgentToButton / maxDistanceAgentToButton, 0, 1);
+        float R1 = (1 - distanceAgentToButtonNorm) * 0.0005f * speed * (buttonFunction.buttonActivated ? 0 : 1);
+
+        // R2: Button Pressed and Activated (Binary)
+        float R2 = buttonFunction.buttonActivated ? 0.005f * speed : 0f;
+
+        // R3: Distance to Initial Position
+        float distanceAgentToInitPos = Vector3.Distance(agentTR.localPosition, agentDefaultInitPos);
+        if (maxDistanceAgentToInitPos < 0)
+            maxDistanceAgentToInitPos = distanceAgentToInitPos;
+        distanceAgentToInitPosNorm = Mathf.Clamp(distanceAgentToInitPos / maxDistanceAgentToInitPos, 0, 1);
+        float R3 = (1 - distanceAgentToInitPosNorm) * 0.0005f * speed * (buttonFunction.buttonActivated ? 1 : 0);
+        distanceToBase = distanceAgentToInitPos;
+
+        // Implement the logic from your first AgentSpecificReward method
+        float ButtonReward = R1 + R2 + R3;
+
+        return ButtonReward;
+
+
+    }
+
+
 
     // void AgentSpecificReward()
     // {
@@ -696,7 +873,11 @@ public class TestReward : Agent
         vialHeightPenalizedThisEpisode = false;
         maxDistanceAgentToVialTarget = -1f;
         maxDistanceVialTargetToRackTarget = -1f;
-
+        // push
+        maxDistanceRackToEndLocation = -1f;
+        // button
+        maxDistanceAgentToButton = -1f;
+        buttonFunction.buttonActivated = false;
     }
 
     // Randomise Next Episode Parameters
@@ -705,7 +886,7 @@ public class TestReward : Agent
         sceneManager.RandomizeAgent();
         // pull
         sceneManager.RandomizeScene_ExpertPull();
-        // pickdrop
+        //pickdrop
         sceneManager.RandomizeScene_ExpertPickDrop();
         // dooropen
         sceneManager.RandomizeScene_ExpertRotateOpen();
@@ -713,6 +894,10 @@ public class TestReward : Agent
         sceneManager.RandomizeScene_ExpertPickPlace();
         // pickinsert
         sceneManager.RandomizeScene_ExpertPickInsert();
+        // push
+        sceneManager.RandomizeScene_ExpertPush();
+        // // button
+        // sceneManager.RandomizeScene_ExpertButton();
     }
 
     // Returns Filtered Position via a Low-Pass Filter (Optional)
