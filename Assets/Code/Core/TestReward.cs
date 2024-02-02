@@ -227,19 +227,19 @@ public class TestReward : Agent
             case TaskState.Pull:
                 if (drawerOpenDistanceNorm >= 0.95f) {// Drawer fully opened
                     currentTask = TaskState.PickDrop;
-                    Debug.Log("Task-PickDrop:" + currentTask);
+                    Debug.Log("case TaskState.Pull ===================================== Task-PickDrop:" + currentTask);
                 }
                 break;
 
             case TaskState.PickDrop:
                 if (drawerOpenDistanceNorm < 0.90f) {// Drawer not fully opened
                     currentTask = TaskState.Pull;
-                    Debug.Log("Task-Pull:" + currentTask);
+                    Debug.Log("case TaskState.PickDrop ===================================== Task-Pull:" + currentTask);
                 }
                 else if (boxTopInCollisionWithUnpackLocation)
                 {
                     currentTask = TaskState.DoorOpen;
-                    Debug.Log("Task-DoorOpen:" + currentTask);
+                    Debug.Log("case TaskState.PickDrop ===================================== Task-DoorOpen:" + currentTask);
                 }
                 // Criteria to switch to dropping, e.g., object is picked
                 break;
@@ -247,16 +247,16 @@ public class TestReward : Agent
             case TaskState.DoorOpen:
                 if (drawerOpenDistanceNorm < 0.90f) {
                     currentTask = TaskState.Pull;
-                    Debug.Log("Task-Pull:" + currentTask);
+                    Debug.Log("case TaskState.DoorOpen ===================================== Task-Pull:" + currentTask);
                 }
                 else if (boxTopInCollisionWithUnpackLocation == false)
                 {
                     currentTask = TaskState.PickDrop;
-                    Debug.Log("Task-PickDrop:" + currentTask);
+                    Debug.Log("case TaskState.DoorOpen ===================================== Task-PickDrop:" + currentTask);
                 }
                 else if (doorHingeOpenAngleNorm >= 0.85f) {
                     currentTask = TaskState.PickPlace;
-                    Debug.Log("Task-PickPlace:" + currentTask);
+                    Debug.Log("case TaskState.DoorOpen ===================================== Task-PickPlace:" + currentTask);
                 }
                 // Criteria to switch to dropping, e.g., object is picked
                 break;
@@ -264,21 +264,26 @@ public class TestReward : Agent
             case TaskState.PickPlace:
                 if (drawerOpenDistanceNorm < 0.90f) {
                     currentTask = TaskState.Pull;
-                    Debug.Log("Task-Pull:" + currentTask);
+                    Debug.Log("case TaskState.PickPlace ===================================== Task-Pull:" + currentTask);
                 }
                 else if (boxTopInCollisionWithUnpackLocation == false)
                 {
                     currentTask = TaskState.PickDrop;
-                    Debug.Log("Task-PickDrop:" + currentTask);
+                    Debug.Log("case TaskState.PickPlace ===================================== Task-PickDrop:" + currentTask);
                 }
                 else if (doorHingeOpenAngleNorm < 0.85f) {
                     currentTask = TaskState.DoorOpen;
-                    Debug.Log("Task-DoorOpen:" + currentTask);
+                    Debug.Log("case TaskState.PickPlace ===================================== Task-DoorOpen:" + currentTask);
+                }
+                else if (distanceRackToEndLocationNorm <= 0.05f)
+                {
+                    currentTask = TaskState.Push;
+                    Debug.Log("case TaskState.PickPlace ===================================== Task-Push:" + currentTask);
                 }
                 else if (rackInContactWithRack)
                 {
                     currentTask = TaskState.PickInsert;
-                    Debug.Log("Task-PickInsert:" + currentTask);
+                    Debug.Log("case TaskState.PickPlace ===================================== Task-PickInsert:" + currentTask);
                 }
                 // Criteria to switch to dropping, e.g., object is picked
                 break;
@@ -286,26 +291,26 @@ public class TestReward : Agent
             case TaskState.PickInsert:
                 if (drawerOpenDistanceNorm < 0.90f) {
                     currentTask = TaskState.Pull;
-                    Debug.Log("Task-Pull:" + currentTask);
+                    Debug.Log("case TaskState.PickInsert ===================================== Task-Pull:" + currentTask);
                 }
                 else if (boxTopInCollisionWithUnpackLocation == false)
                 {
                     currentTask = TaskState.PickDrop;
-                    Debug.Log("Task-PickDrop:" + currentTask);
+                    Debug.Log("case TaskState.PickInsert ===================================== Task-PickDrop:" + currentTask);
                 }
                 else if (doorHingeOpenAngleNorm < 0.85f) {
                     currentTask = TaskState.DoorOpen;
-                    Debug.Log("Task-DoorOpen:" + currentTask);
+                    Debug.Log("case TaskState.PickInsert ===================================== Task-DoorOpen:" + currentTask);
                 }
                 else if (rackInContactWithRack == false)
                 {
                     currentTask = TaskState.PickPlace;
-                    Debug.Log("Task-PickPlace:" + currentTask);
+                    Debug.Log("case TaskState.PickInsert ===================================== Task-PickPlace:" + currentTask);
                 }
                 else if (vialTargetInCollsionWithRack)
                 {
                     currentTask = TaskState.Push;
-                    Debug.Log("Task-Push:" + currentTask);
+                    Debug.Log("case TaskState.PickInsert ===================================== Task-Push:" + currentTask);
                 }
                 // Criteria to switch to dropping, e.g., object is picked
                 break;
@@ -313,16 +318,16 @@ public class TestReward : Agent
             case TaskState.Push:
                 if (drawerOpenDistanceNorm < 0.90f) {
                     currentTask = TaskState.Pull;
-                    Debug.Log("Task-Pull:" + currentTask);
+                    Debug.Log("case TaskState.Push ===================================== Task-Pull:" + currentTask);
                 }
                 else if (boxTopInCollisionWithUnpackLocation == false)
                 {
                     currentTask = TaskState.PickDrop;
-                    Debug.Log("Task-PickDrop:" + currentTask);
+                    Debug.Log("case TaskState.Push ===================================== Task-PickDrop:" + currentTask);
                 }
                 else if (doorHingeOpenAngleNorm < 0.85f) {
                     currentTask = TaskState.DoorOpen;
-                    Debug.Log("Task-DoorOpen:" + currentTask);
+                    Debug.Log("case TaskState.Push ===================================== Task-DoorOpen:" + currentTask);
                 }
                 // else if (rackInContactWithRack == false)
                 // {
@@ -332,12 +337,12 @@ public class TestReward : Agent
                 else if (vialTargetInCollsionWithRack == false)
                 {
                     currentTask = TaskState.PickInsert;
-                    Debug.Log("Task-PickInsert:" + currentTask);
+                    Debug.Log("case TaskState.Push ===================================== Task-PickInsert:" + currentTask);
                 }
                 else if (distanceRackToEndLocationNorm <= 0.05f)
                 {
                     currentTask = TaskState.Button;
-                    Debug.Log("Task-Button:" + currentTask);
+                    Debug.Log("case TaskState.Push ===================================== Task-Button:" + currentTask);
                 }
                 // Criteria to switch to dropping, e.g., object is picked
                 break;
@@ -345,16 +350,16 @@ public class TestReward : Agent
             case TaskState.Button:
                 if (drawerOpenDistanceNorm < 0.90f) {
                     currentTask = TaskState.Pull;
-                    Debug.Log("Task-Pull:" + currentTask);
+                    Debug.Log("case TaskState.Button ===================================== Task-Pull:" + currentTask);
                 }
                 else if (boxTopInCollisionWithUnpackLocation == false)
                 {
                     currentTask = TaskState.PickDrop;
-                    Debug.Log("Task-PickDrop:" + currentTask);
+                    Debug.Log("case TaskState.Button ===================================== Task-PickDrop:" + currentTask);
                 }
                 else if (doorHingeOpenAngleNorm < 0.85f) {
                     currentTask = TaskState.DoorOpen;
-                    Debug.Log("Task-DoorOpen:" + currentTask);
+                    Debug.Log("case TaskState.Button ===================================== Task-DoorOpen:" + currentTask);
                 }
                 // else if (rackInContactWithRack == false)
                 // {
@@ -364,17 +369,17 @@ public class TestReward : Agent
                 else if (vialTargetInCollsionWithRack == false)
                 {
                     currentTask = TaskState.PickInsert;
-                    Debug.Log("Task-PickInsert:" + currentTask);
+                    Debug.Log("case TaskState.Button ===================================== Task-PickInsert:" + currentTask);
                 }
-                else if (distanceRackToEndLocationNorm > 0.05f)
-                {
-                    currentTask = TaskState.Push;
-                    Debug.Log("Task-Push:" + currentTask);
-                }
+                // else if (distanceRackToEndLocationNorm > 0.05f)
+                // {
+                //     currentTask = TaskState.Push;
+                //     Debug.Log("case TaskState.Button ===================================== Task-Push:" + currentTask);
+                // }
                 else if (buttonFunction.buttonActivated)
                 {
                     currentTask = TaskState.Pull;
-                    Debug.Log("Task-Pull:" + currentTask);
+                    Debug.Log("case TaskState.Button ===================================== Task-Pull:" + currentTask);
                 }
                 // Criteria to switch to dropping, e.g., object is picked
                 break;
@@ -453,15 +458,15 @@ public class TestReward : Agent
             maxDistanceRackToEndLocation = distanceRackToEndLocation;
         distanceRackToEndLocationNorm = Mathf.Clamp(distanceRackToEndLocation / maxDistanceRackToEndLocation, 0, 1);
 
-        Debug.Log("drawerOpenDistanceNorm>=0.95?:" + drawerOpenDistanceNorm);
-        Debug.Log("boxTopInCollisionWithUnpackLocation == true?:" + boxTopInCollisionWithUnpackLocation);
-        Debug.Log("doorHingeOpenAngleNorm >= 0.85f?:" + doorHingeOpenAngleNorm);
-        Debug.Log("rackInContactWithRack == true?:" + rackInContactWithRack);
-        Debug.Log("vialTargetInCollsionWithRack == true?:" + vialTargetInCollsionWithRack);
-        Debug.Log("distanceRackToEndLocationNorm <= 0.05f?:" + distanceRackToEndLocationNorm);
-        Debug.Log("buttonFunction.buttonActivated == true?:" + buttonFunction.buttonActivated);
-        Debug.Log("real-time-currentTask:" + currentTask);
+        // Debug.Log("drawerOpenDistanceNorm>=0.95?:" + drawerOpenDistanceNorm);
+        // Debug.Log("boxTopInCollisionWithUnpackLocation == true?:" + boxTopInCollisionWithUnpackLocation);
+        // Debug.Log("doorHingeOpenAngleNorm >= 0.85f?:" + doorHingeOpenAngleNorm);
+        // Debug.Log("rackInContactWithRack == true?:" + rackInContactWithRack);
+        // Debug.Log("vialTargetInCollsionWithRack == true?:" + vialTargetInCollsionWithRack);
+        // Debug.Log("distanceRackToEndLocationNorm <= 0.05f?:" + distanceRackToEndLocationNorm);
+        // Debug.Log("buttonFunction.buttonActivated == true?:" + buttonFunction.buttonActivated);
         UpdateTaskState();
+        // Debug.Log("real-time-currentTask:" + currentTask);
 
         if (currentTask == TaskState.Pull)
         {
@@ -495,7 +500,12 @@ public class TestReward : Agent
         // The next line can be for all expert reward 1 for 7
         float distanceAgentToInitPos = Vector3.Distance(agentTR.localPosition, agentDefaultInitPos);
         // Primary Goal is Achieved and Agent is Wihin Initial Position
-        if (distanceAgentToInitPos < 0.1f && drawerOpenDistanceNorm >= 0.95f && boxTopInCollisionWithUnpackLocation && doorHingeOpenAngleNorm >= 0.85f && rackInContactWithRack && vialTargetInCollsionWithRack && distanceRackToEndLocationNorm <= 0.05f && buttonFunction.buttonActivated && (StepCount >= (MaxStep / 10)) && !agentControlled)
+        // if (distanceAgentToInitPos < 0.1f && drawerOpenDistanceNorm >= 0.95f && boxTopInCollisionWithUnpackLocation && doorHingeOpenAngleNorm >= 0.85f && rackInContactWithRack && vialTargetInCollsionWithRack && distanceRackToEndLocationNorm <= 0.05f && buttonFunction.buttonActivated && (StepCount >= (MaxStep / 10)) && !agentControlled)
+        if (vialTargetInCollsionWithRack &&
+            distanceRackToEndLocationNorm <= 0.15f &&
+            buttonFunction.buttonActivated &&
+            distanceAgentToInitPos <= 0.3f
+            && (StepCount >= (MaxStep / 100)))
         {
             SetReward(1000f);
             PrintEpisodeInfo(true);
@@ -810,9 +820,9 @@ public class TestReward : Agent
     {
         if (currentlyHeuristic && (invariantStepCount || ((StepCount) % 1000) == 0))
         {
-            Debug.Log("Cumulative reward: " + GetCumulativeReward()
-               + ", for episode: " + episode + ", at environment step: " + StepCount
-               + ", with wall-clock time: " + (Time.realtimeSinceStartup - actualTime) + " sec.");
+            // Debug.Log("Cumulative reward: " + GetCumulativeReward()
+            //    + ", for episode: " + episode + ", at environment step: " + StepCount
+            //    + ", with wall-clock time: " + (Time.realtimeSinceStartup - actualTime) + " sec.");
         }
     }
 
