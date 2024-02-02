@@ -225,6 +225,7 @@ public class TestReward : Agent
     void UpdateTaskState() {
         switch (currentTask) {
             case TaskState.Pull:
+                Debug.Log("Task =====================================>>>>> Pull");
                 if (drawerOpenDistanceNorm >= 0.95f) {// Drawer fully opened
                     currentTask = TaskState.PickDrop;
                     Debug.Log("case TaskState.Pull ===================================== Task-PickDrop:" + currentTask);
@@ -896,16 +897,16 @@ public class TestReward : Agent
         sceneManager.RandomizeAgent();
         // pull
         sceneManager.RandomizeScene_ExpertPull();
-        //pickdrop
-        sceneManager.RandomizeScene_ExpertPickDrop();
-        // dooropen
-        sceneManager.RandomizeScene_ExpertRotateOpen();
-        // pickplace
-        sceneManager.RandomizeScene_ExpertPickPlace();
-        // pickinsert
-        sceneManager.RandomizeScene_ExpertPickInsert();
-        // push
-        sceneManager.RandomizeScene_ExpertPush();
+        // //pickdrop
+        // sceneManager.RandomizeScene_ExpertPickDrop();
+        // // dooropen
+        // sceneManager.RandomizeScene_ExpertRotateOpen();
+        // // pickplace
+        // sceneManager.RandomizeScene_ExpertPickPlace();
+        // // pickinsert
+        // sceneManager.RandomizeScene_ExpertPickInsert();
+        // // push
+        // sceneManager.RandomizeScene_ExpertPush();
         // // button
         // sceneManager.RandomizeScene_ExpertButton();
     }
