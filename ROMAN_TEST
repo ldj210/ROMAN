@@ -1,0 +1,335 @@
+=== ROMAN2022 on server 2024.01.08 ==========================================2 --- new -----no-graphics
+source activate
+conda activate mlagents
+(mlagents) eri@eri-Precision-5820-Tower:~/ROMAN-2022/Training$ mlagents-learn config/ROMAN_Expert_Button.yaml --run-id=ROMAN_Expert_Button_Training --train --env=/home/eri/ROMAN_2022_Env/Expert_Button.x86_64 --base-port=5007 --resume
+
+(mlagents) eri@eri-Precision-5820-Tower:~/ROMAN-2022/Training$ mlagents-learn config/ROMAN_Expert_Button.yaml --run-id=ROMAN_Expert_Button_Training --train --env=/home/eri/ROMAN_2022_Env/Expert_Button.x86_64 --base-port=5007 --resume --no-graphics --torch-device cuda
+
+[INFO] ROMAN_Expert_Button_Brain. Step: 318560000. Time Elapsed: 102893.549 s. Mean Reward: 1048.023. Std of Reward: 3.882. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 318640000. Time Elapsed: 103007.615 s. Mean Reward: 1051.103. Std of Reward: 16.574. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 318720000. Time Elapsed: 103120.658 s. Mean Reward: 1047.357. Std of Reward: 4.160. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 318800000. Time Elapsed: 103243.128 s. Mean Reward: 1046.781. Std of Reward: 3.386. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 318880000. Time Elapsed: 103357.351 s. Mean Reward: 1047.263. Std of Reward: 4.558. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 318960000. Time Elapsed: 103473.742 s. Mean Reward: 1051.532. Std of Reward: 25.366. Training.
+[INFO] Exported results/ROMAN_Expert_Button_Training/ROMAN_Expert_Button_Brain/ROMAN_Expert_Button_Brain-318999031.onnx
+[INFO] ROMAN_Expert_Button_Brain. Step: 319040000. Time Elapsed: 103590.870 s. Mean Reward: 1047.604. Std of Reward: 3.690. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 319120000. Time Elapsed: 103708.297 s. Mean Reward: 1049.445. Std of Reward: 9.370. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 319200000. Time Elapsed: 103827.176 s. Mean Reward: 1047.368. Std of Reward: 3.556. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 319280000. Time Elapsed: 103944.106 s. Mean Reward: 1048.598. Std of Reward: 9.430. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 319360000. Time Elapsed: 104059.497 s. Mean Reward: 1048.134. Std of Reward: 6.756. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 319440000. Time Elapsed: 104173.320 s. Mean Reward: 1048.278. Std of Reward: 4.552. Training.
+[INFO] Exported results/ROMAN_Expert_Button_Training/ROMAN_Expert_Button_Brain/ROMAN_Expert_Button_Brain-319499771.onnx
+[INFO] ROMAN_Expert_Button_Brain. Step: 319520000. Time Elapsed: 104292.697 s. Mean Reward: 1050.394. Std of Reward: 13.602. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 319600000. Time Elapsed: 104405.338 s. Mean Reward: 1049.086. Std of Reward: 6.620. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 319680000. Time Elapsed: 104522.586 s. Mean Reward: 1048.827. Std of Reward: 9.237. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 319760000. Time Elapsed: 104640.218 s. Mean Reward: 1050.820. Std of Reward: 14.000. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 319840000. Time Elapsed: 104755.972 s. Mean Reward: 1048.840. Std of Reward: 9.830. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 319920000. Time Elapsed: 104872.444 s. Mean Reward: 1047.659. Std of Reward: 3.768. Training.
+[INFO] ROMAN_Expert_Button_Brain. Step: 320000000. Time Elapsed: 104991.556 s. Mean Reward: 1048.153. Std of Reward: 4.704. Training.
+[INFO] Exported results/ROMAN_Expert_Button_Training/ROMAN_Expert_Button_Brain/ROMAN_Expert_Button_Brain-319999749.onnx
+[INFO] Exported results/ROMAN_Expert_Button_Training/ROMAN_Expert_Button_Brain/ROMAN_Expert_Button_Brain-320000749.onnx
+[INFO] Copied results/ROMAN_Expert_Button_Training/ROMAN_Expert_Button_Brain/ROMAN_Expert_Button_Brain-320000749.onnx to results/ROMAN_Expert_Button_Training/ROMAN_Expert_Button_Brain.onnx.
+
+So, the final model saved in: ~/ROMAN-2022/Training/results/ROMAN_Expert_Button_Training/ROMAN_Expert_Button_Brain.onnx.
+And, copied to for test: /home/eri/ROMAN-2022/Assets/Trained Models for Success Cul
+
+
+====================================================================================================================================================
+完成 success_rate code change
+流氓的地方: Max Step = 80000 
+sole file for test sussess named: ExpertButton_Success_Test.cs (copy, git, change, git) === > git add Assets/Code/Core/ExpertButton_Success_Test.cs
+Dont forget:
+git branch ===> check which branch
+git add [] or . ==> specific change of the file
+git commit -m "descriptions" 
+git push origin ROMAN-2022
+=== 修改的代码 follow :
+    // * Test ===== 3
+    public int totalEpisodes = 0; // 总回合数
+    public int successfulEpisodes = 0; // 成功回合数
+    public int testEpisodeLimit = 1000; // 测试回合限制
+    
+    // * Test method
+    void EndEpisode()
+    {
+        totalEpisodes++; // 增加回合计数
+        CheckTestCompletion(); // 检查测试是否完成
+        base.EndEpisode(); // 调用基类的 EndEpisode 方法
+    }
+
+    // * Test method
+    void CheckTestCompletion()
+    {
+        if (totalEpisodes >= testEpisodeLimit)
+        {
+            float successRate = (float)successfulEpisodes / totalEpisodes;
+            Debug.Log($"Test Completed: {totalEpisodes} episodes, {successfulEpisodes} successes, Success Rate: {successRate * 100}%");
+            
+            // 在编辑器中停止
+            #if UNITY_EDITOR
+                        UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                        Application.Quit();
+            #endif
+        }
+    }
+    
+    void AgentSpecificReward()
+    {
+        // Primary Goal is Achieved and Agent is Wihin Initial Position
+        if (distanceAgentToInitPos < 0.1f && buttonFunction.buttonActivated && (StepCount >= (maxStep / 10)) && !agentControlled)
+        {
+            SetReward(1000f);
+            PrintEpisodeInfo(true);
+            // * Test ===== 1
+            successfulEpisodes++;
+            EndEpisode();
+        }
+    }
+PS: ExpertButton_Success_Test.cs not work, just changed from the ExpertButton.cs and can workon Unity.
+====================================================================================================================================================
+Conclude: ROMAN Pay attention to the table 2 and table 4.
+
+@@ Task 1 (Table 2: Individual unity 2022): === > 2022 can be uesd. Expert Button Script has changed, but not git push.
+Specify: retrain ROMAN_Expert_Button_Brain on unity 2022, get the successful rate to verify the environment of ROMAN-2022 is OK. And then, this 2022 can be used for our algorithm.
+A. ROMEN-2022 ROMAN_Expert_Button_Brain has been retrained.
+B. ROMAN_Expert_Button_Brain Success rate code has done.
+C. Test Results: OK. Specific, Gaussion noise of 0.5cm. Used time about 15s * 10000 = 42 hours. The 1000 resuls is 100%.
+
+@@ Task 2 (Table 2: Individual unity 2022): === > should be done by chang.
+Specify: other Experts Model on Unity 2022?
+
+@@ Task 3 (Table 2: MN how is tested successful rate of S1 ~ S7?): === > S7 results waiting Plus S5 is ok Now
+Specify: Make sure from the Alienware.
+Scenario 理解: S7 就是都包括专家任务的场景, 一个episode结束后,相关动态属性物品, 随机摆位,然后测试 MN 完成任务的能力, 总的就是在考虑在一个任务场景中, 动态物品随机摆放, 然后选择正确 expert 的能力.
+A. 需要构建: s6 ~ s1, 例如 s1 状态就是试管在架子里, 架子在传送带上, 这时 MN 只需要选择 Push Button 的能力；例如, s2就是试管在架子里,架子在柜子上, 然后先选择 push 的能力, 再选择 push button 能力.
+B. 特点: 比较浪费时间, 测试一个场景需要 1000 * 120s = 33 hours. 目前先复现 S7 的准确度就好了. 
+--- S7 1000 trials successful rate = 91.1 % 
+--- 后面, 还是需要复现一个场景出来, 万一以后测试需要用到呢, 以 S5 为例子, OK Now.
+    void RandomizeEpisodeVariables()
+    {
+        sceneManager.RandomizeAgent();
+        scenarioCase = Random.Range(0,7);
+        sceneManager.RandomizeScene_ManipulationNetwork(scenarioCase);
+    }
+    
+    void RandomizeEpisodeVariables()
+    {
+        sceneManager.RandomizeAgent();
+        scenarioCase = 4;
+        sceneManager.RandomizeScene_ManipulationNetwork(scenarioCase);
+    }
+
+@@ Task 4 (Table 4: Single NN how is trained. Guess first train Push Button, and + Push): === > Don't need do now.
+Specify: To be honest, this can be quik realize by the Push Button model and then trained +.
+A. Direct Train from 2019.
+B. Stop training: 140 demonstration to train a NN, concerns rewards. and do not have concise path, so stop. (3d demonstrations for each NN = 20, MN = 42 = 6 * 7.)
+
+@@ Task 5 (Table 1 found.Feature1: the trained time is short(Tensorboard)) === > Ok and the sever training configure is OK.
+Tool 1: tensorboard: parameters. [INFO] tensorboard.
+Tool 2: to test the model of model-25600.ckpt. And if behavior is ok, we can know the server is OK.
+[INFO] Copied results/ROMAN_Expert_Button_Training/ROMAN_Expert_Button_Brain/ROMAN_Expert_Button_Brain-320000749.onnx to results/ROMAN_Expert_Button_Training/ROMAN_Expert_Button_Brain.onnx.
+Completed. 
+--- /home/eri/ml-agents/ml-agents/mlagents/trainers/ttt.py 	===> to change ckpt to pb.version
+--- python tensorflow_to_barracuda.py frozen_model.pb test.nn 	===> about three hours.
+--- release21 train 	===> results OK!
+
+@@ Task 6 (BC, GAIL, PPO) ===> OK
+Give table minibatch: 每次 SGD 的minibatch问题: 数值以Take ROMAN_Expert_Button USE 为例子.
+--- BC Moduel.py def update(self): 
+    	1. def __init__():  self.demonstration_buffer = demo_to_buffer(demo_path, policy.sequence_length) 	===> load the Expert demonstration. and  BC update weights on this data for 3 epoches.
+    		for _ in range(n_epoch):
+    			for i in range(num_batches // self.policy.sequence_length):
+    				mini_batch_demo = demo_update_buffer.make_mini_batch(start, end)	
+	2. policy.sequence_length =1 	===> because use_recurrent: false.
+	3. self.n_sequences = 1024 	===> (~ batch_size)
+	4. self.demonstration_buffer.num_experiences = 4801 	===> (The toal data of demonstration of ROMAN_Expert_Button)
+	5. num_batches = 4 (batch_size = 1024, num_experiences = 4801) ===> used for loop (0,1,2,3). 		===> (Given the number of how mang batch should have on the total demo data)
+		start = 0, end = 1024;
+		start = 1025, end = 2049;
+		start = 2050, end = 3074;
+		start = 3075, end = 4099;
+		mini_batch_demo = demo_update_buffer.make_mini_batch(start, end) 	===> For SGD on this mini_batch.\
+	6. shuffle(1) pertimestep
+
+--- GAIL: signal.py def prepare_update():
+	1. update_buffer.num_experiences >= default: buffer_size: 10240 = batch * 10 	===> So, GAIL and PPO updata on this. Pay attention to the mini_batch_size GAIL is restricted to 1024.
+	2. def __init__(): self.demonstration_buffer = demo_to_buffer(demo_path, policy.sequence_length) 4081	===> load the Expert demonstration.
+	3. mini_batch.num_experiences = 1024 	===> Because self.optimizer.update(buffer.make_mini_batch(l, l + batch_size), n_sequences) 
+	4. mini_batch_demo = self.demonstration_buffer.sample_mini_batch(mini_batch.num_experiences, 1) 	===> Sample 1024 data as mini_batch from the demo_to_buffer
+
+--- PPO: signal.py def prepare_update():
+	1. self.update_buffer.num_experiences 25600 ===> the data of PPO used for train. and this is >= 10240, and PPO update weights on this data for 3 epoches.
+		for _ in range(num_epoch):
+			for l in range(0, max_num_batch * batch_size, batch_size):
+				buffer.make_mini_batch(l, l + batch_size)  ===> Usd for PPO update weights for a mini_batch and the corresponding GAIL mini_batch sampled from demon_buffer like above.
+
+@@ Task 7 ( The implement of GAIL IN the Release 21) ===> Process is the same as the mlagent0.15.1.
+RESULTS: GAIL in release21 performs the same as mlagents0.15.1.
+
+@@ Task 8 (Inference model question) model how is called in Ml-Agents forward process ===> 结论是 ROMAN inference的时候已经跟 GAIL BC 无关了,只是actor部分的 forward 因为 m_Action.vectorActions.
+About the Behavior Parameters:
+
+当开始训练代理时，ML-Agents训练器会使用Behavior Parameters中的设置来确定如何与代理交互，包括观测数据应有的格式和代理可以执行的动作类型。
+在推断模式下，代理将使用关联的神经网络模型来决定其行动。模型的输入是代理的观测数据，输出是代理应执行的动作。
+Behavior Parameters 的设置确保了代理的观测数据和动作空间与模型的输入和输出保持一致，从而使训练和推断过程顺利进行。
+总之，Behavior Parameters 是在Unity中使用ML-Agents进行强化学习时设置代理行为的重要工具。它定义了代理从环境中收集的数据类型、动作空间类型以及用于决策模型，在训练和推断阶段指导代理行为。
+
+Code aspects 具体如下: Agents.cs
+
+IPolicy m_Brain;
+
+m_Brain?.RequestDecision(m_Info, sensors);
+
+OnActionReceived(m_Action.vectorActions);
+
+模型推断的封装: ML-Agents框架的设计抽象了模型推断的细节，使得用户可以专注于设计和实现代理的行为和环境交互，而不必深入到模型推断的实现细节。实际的模型推断过程发生在 IPolicy 接口的实现中，这通常是一个神经网络模型，它在训练阶段被训练，并在推断阶段用于生成动作决策。
+
+@@ Task 9 (Env application) self.update_buffer.num_experiences 25600 ===> the data of PPO used for train. and this is >= 10240 ===> The resluts is that 25600 is determined by the self.trajectory_queues: List[AgentManagerQueue[Trajectory]] = []  === trainer.subscribe_trajectory_queue(agent_manager.trajectory_queue)
+A. Trajectories: A trajectory \tau is a sequence of states and actions in the world. Trajectories are also frequently called episodes or rollouts. In ROMAN, a episodes is defined from the scenary task start and to the task end. In ROMAN, a trajectory can be regarded as the demonstrations and contains 4801 steps for the Expert BOTTON and equals to the rollouts.
+B. for traj_queue in self.trajectory_queues: the _process_trajectory*(t) will queue the whole trajectory from the env __init()__. and the acture length is not controlled by others.
+    def advance(self) -> None:
+        """
+        Steps the trainer, taking in trajectories and updates if ready.
+        """
+        with hierarchical_timer("process_trajectory"):
+            for traj_queue in self.trajectory_queues:
+                # We grab at most the maximum length of the queue.
+                # This ensures that even if the queue is being filled faster than it is
+                # being emptied, the trajectories in the queue are on-policy.
+                for _ in range(traj_queue.maxlen):
+                    try:
+                        t = traj_queue.get_nowait()
+                        self._process_trajectory(t)
+                    except AgentManagerQueue.Empty: 	
+                        break
+        if self.should_still_train:
+            if self._is_ready_update():
+                with hierarchical_timer("_update_policy"):
+                    self._update_policy()
+                    for q in self.policy_queues:
+                        # Get policies that correspond to the policy queue in question
+                        q.put(self.get_policy(q.behavior_id))
+                        
+       def subscribe_trajectory_queue(
+        self, trajectory_queue: AgentManagerQueue[Trajectory]
+    ) -> None:
+        """
+        Adds a trajectory queue to the list of queues for the trainer to ingest Trajectories from.
+        :param queue: Trajectory queue to publish to.
+        """
+        self.trajectory_queues.append(trajectory_queue)
+
+@@ Task 10 (Spinning UP) ===> ok
+The concept of step:
+
+The environment is the world that the agent lives in and interacts with. At every step of interaction, the agent sees a (possibly partial) observation of the state of the world, and then decides on an action to take. ===> Corresponding to the ROMAN 4081.
+
+To talk more specifically what RL does, we need to introduce additional terminology:
+
+A. STATE s: A state s is a complete description of the state of the world. (environment = state)
+
+B. OBSERVATION: An observation o is a partial description of a state, which may omit information.
+
+C. POLICIES: deterministic and stochastic. 
+
+D. Two kinds of STOCHASTIC POLICIES: categorical policies for discrete action spaces and diagonal Gaussian policies for continuous action spaces.
+
+E. A diagonal Gaussian policy always has a neural network that maps from observations to mean actions, \mu_{\theta}(s). There are two different ways that the covariance matrix is typically represented. 这里最重要的是对于对角高斯策略是有一个网络从观测 observation 到均值mu的映射的即maps. 而对于sigma这个一般分为两类一个是一个standalone参数,第二种是有一个网络从observation观测映射过来. 然后就可以有公式计算 sampling 和Log-Likelihood.
+
+F. Trajectories: A trajectory \tau is a sequence of states and actions in the world. Trajectories are also frequently called episodes or rollouts. In ROMAN, a episodes is defined from the scenary task start and to the task end. In ROMAN, a trajectory can be regarded as the demonstrations and contains 4801 steps for the Expert BOTTON and equals to the rollouts.
+
+@@ Task 11 (Data Demonstration)
+The data 6 about the wholl task from the drawer does exit the s a(0, ..., 7) mapping to s a(x, y, z, grasp). 
+A. How MN Demonstration is recorded.
+B. Does MN call the expert in real-time.
+C. Demonstration_load funtion and synchronize maybe a hard question?
+
+@@ Task 12 (Parameter)
+A. Parameter 1: ppo_mini_epoch 
+	meaning: 在收集的数据上, 分布比较接近时, PPO可以使用的数据训练次数;
+	chang: repeat_per_collecet = 10
+	ROMAN: default: num_epoch: 3
+B. Parameter 2: minibath_size
+	meaning: 在收集的数据上, 用一部分数据进行更新, 即一次 SGD 用到的数据;
+	chang: 64
+	ROMAN: default: batch_size: 1024
+c. Parameter 3: k = 0, 1, 2, 3 ...
+	meaning: 数据收集的总共 step.
+	chang: 100
+	ROMAN: default: max_steps: 320e6
+D. Parameter 4: T 
+	meaning: buffer size 利用当时策略一次 forward 的 trajectory or rollout 的包含的轨迹steps.
+	chang: 认为是固定值, 其代码中是 2048
+	ROMAN: 是与环境交互的结果, 测试后, 其长度不一致, 25600, 10414, 10501, 都出现过, 还是原来的说法, 只要压入的 trajectory 的 steps 大于10240 就会处罚训练.  
+
+	每次数据收集的长度是多少呢?
+	在每个训练迭代的开始，代理与Unity环境交互，执行一系列的动作。这些动作是基于当前策略（即神经网络模型）生成的。
+	在执行动作的过程中，环境会返回新的状态信息、奖励、是否达到终止状态等数据。这些数据组成了代理的经验（也称为轨迹）。
+	轨迹的长度取决于环境的配置、代理的策略、以及是否达到了终止条件（比如任务完成或者达到最大步数限制）。
+
+@@ Task 13 (Reward function) ===> reward 7 to 1 has been completed, to see /home/eri/ROMAN-2022/Assets/Code/Core/TestReward.cs. Also, there recorded a demonstration at /home/eri/ROMAN-2022/Assets/Demonstrations/ROMANReward71.demo (Ok now)
+流程: 
+	拉抽屉 ---> 取出盖子放在固定位置 ---> 开门 ---> 拿架子放在固定位置 ---> 从抽屉取出试管放在架子里 ---> 把架子推向传送袋 ---> 按下按钮
+	
+@@ Task 13 (Random scene) ===> maybe need to change after test
+Todo: now, from start to end. 
+    // Randomise Next Episode Parameters
+    void RandomizeEpisodeVariables()
+    {
+        sceneManager.RandomizeAgent();
+        // pull
+        sceneManager.RandomizeScene_ExpertPull();
+        // pickdrop
+        // sceneManager.RandomizeScene_ExpertPickDrop();
+        // // dooropen
+        // sceneManager.RandomizeScene_ExpertRotateOpen();
+        // // pickplace
+        // sceneManager.RandomizeScene_ExpertPickPlace();
+        // // pickinsert
+        // sceneManager.RandomizeScene_ExpertPickInsert();
+        // // push
+        // sceneManager.RandomizeScene_ExpertPush();
+        // // button
+        // sceneManager.RandomizeScene_ExpertButton();
+    }
+
+@@ Task 14 (CollectObservations) do not equal to the MN, this maybe a question.
+Todo: to make sure about the 9 variants about the Location.
+MN. public override void CollectObservations(VectorSensor sensor)
+MN.ENV =  28 = 6 + 2 + 20. ===> table 1 is not right, there are 28 not 29. This number is right in the unity.env.MN.
+Reward.ENV =  = 6 + 2 + 20 + 9 (9 is the varients about Locations), just pay attention to this 9 objects is ok.
+        
+        unpackLocationPosWithNoise = GaussianDistribution.PositionWGaussianNoise(unpackingLocationTR.localPosition, environmentNoise.posNoiseMeters);
+        unpackLocationPosWithNoise = LowPassFilteredPosition(unpackLocationPosWithNoise, new int[] { 6, 7, 8 });
+        sensor.AddObservation(unpackLocationPosWithNoise); // *** 3
+        
+        rackLocationTargetPosWithNoise = GaussianDistribution.PositionWGaussianNoise(rackLocationTargetTR.localPosition, environmentNoise.posNoiseMeters);
+        rackLocationTargetPosWithNoise = LowPassFilteredPosition(rackLocationTargetPosWithNoise, new int[] { 21, 22, 23 });
+        sensor.AddObservation(rackLocationTargetPosWithNoise); // *** 3
+        
+        rackEndLocationTargetPosWithNoise = GaussianDistribution.PositionWGaussianNoise(endLocationTargetTR.localPosition, environmentNoise.posNoiseMeters);
+        rackEndLocationTargetPosWithNoise = LowPassFilteredPosition(rackEndLocationTargetPosWithNoise, new int[] { 21, 22, 23 });
+        sensor.AddObservation(rackEndLocationTargetPosWithNoise); // *** 3
+
+===> the output is demonstrations shift from ROMAN old demonstrations.
+
+===> 02.20
+	A new discovery is that when record the demonstration in ROMAN2019UNITY, 
+	
+BC module demonstrations.	
+(Pdb) demo_update_buffer.keys()
+dict_keys(['done', 'rewards', 'vector_obs', 'actions', 'prev_action'])
+
+
+
+
+
+    
+
+
+
+
+
+ 
+
